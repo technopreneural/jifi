@@ -1,1 +1,5 @@
+hostapd/data/*
+*.wpa_psk
+*.acl
+*.wps_pin
 *.tar

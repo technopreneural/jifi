@@ -17,6 +17,6 @@ ARG		DEBIAN_FRONTEND=noninteractive
 RUN		apt-get update && apt-get install --no-install-recommends -y hostapd rfkill
 
 WORKDIR		/home/app
-ADD		app.tar .
+ADD		hostapd.tar .
 
 ENTRYPOINT	/home/app/script/entrypoint.sh
