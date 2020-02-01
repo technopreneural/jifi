@@ -1,0 +1,28 @@
+#-----------------------------------
+# Stage 1
+#-----------------------------------
+FROM		ubuntu AS builder
+MAINTAINER	technopreneural@yahoo.com
+
+ARG		DEBIAN_FRONTEND=noninteractive
+RUN		apt-get update && apt-get upgrade -y
+
+#-----------------------------------
+# Stage 2
+#-----------------------------------
+FROM		builder AS dnsmasq
+MAINTAINER	technopreneural@yahoo.com
+
+ARG		DEBIAN_FRONTEND=noninteractive
+RUN		apt-get update && apt-get install --no-install-recommends -y dnsmasq
+
+EXPOSE		53/tcp
+EXPOSE		53/udp
+
+EXPOSE		67/udp
+EXPOSE		68/udp
+
+WORKDIR		/home/app
+ADD		dnsmasq.tar .
+
+ENTRYPOINT	/home/app/script/dnsmasq.sh

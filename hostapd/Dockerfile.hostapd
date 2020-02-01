@@ -1,0 +1,22 @@
+#-----------------------------------
+# Stage 1: Generic configuration
+#-----------------------------------
+FROM		ubuntu AS builder
+MAINTAINER	technopreneural@yahoo.com
+
+ARG		DEBIAN_FRONTEND=noninteractive
+RUN		apt-get update && apt-get upgrade -y
+
+#-----------------------------------
+# Stage 2 App specific configuration
+#-----------------------------------
+FROM		builder AS hostapd
+MAINTAINER	technopreneural@yahoo.com
+
+ARG		DEBIAN_FRONTEND=noninteractive
+RUN		apt-get update && apt-get install --no-install-recommends -y hostapd rfkill
+
+WORKDIR		/home/app
+ADD		app.tar .
+
+ENTRYPOINT	/home/app/script/entrypoint.sh
