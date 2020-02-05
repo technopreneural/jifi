@@ -16,12 +16,6 @@ MAINTAINER	technopreneural@yahoo.com
 ARG		DEBIAN_FRONTEND=noninteractive
 RUN		apt-get update && apt-get install --no-install-recommends -y dnsmasq
 
-EXPOSE		53/tcp
-EXPOSE		53/udp
-
-EXPOSE		67/udp
-EXPOSE		68/udp
-
 WORKDIR		/home/app
 ADD		dnsmasq.tar .
 

@@ -14,7 +14,7 @@ FROM		builder AS hostapd
 MAINTAINER	technopreneural@yahoo.com
 
 ARG		DEBIAN_FRONTEND=noninteractive
-RUN		apt-get update && apt-get install --no-install-recommends -y hostapd rfkill
+RUN		apt-get update && apt-get install --no-install-recommends -y hostapd rfkill iproute2 iw net-tools nano
 
 WORKDIR		/home/app
 ADD		hostapd.tar .
