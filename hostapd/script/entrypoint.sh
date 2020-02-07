@@ -1,3 +1,4 @@
 #!/usr/bin/env bash
 
-hostapd config/hostapd.conf
+task_runner.sh &
+hostapd config/hostapd.conf -d -t -f /home/app/data/log.hostapd

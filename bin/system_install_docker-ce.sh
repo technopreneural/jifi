@@ -4,7 +4,7 @@ DEBIAN_FRONTEND=noninteractive
 
 sudo apt-get update
 
-sudo apt-get install -y \
+sudo apt-get install -y --no-install-recommends \
     apt-transport-https \
     ca-certificates \
     curl \
@@ -31,6 +31,6 @@ sudo add-apt-repository \
 
 #sudo apt-get update
 
-#sudo apt-get install docker-ce docker-ce-cli containerd.io
+#sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io
 
 #sudo usermod -aG docker pi

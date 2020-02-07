@@ -6,10 +6,10 @@ PATH="$PATH:$DIR"
 function main() {
 case "${2}" in
 "AP-STA-CONNECTED")
-	device_connect "${3}"
+	device_connect.sh "${3}"
 	;;
 "AP-STA-DISCONNECTED")
-	device_disconnect "${3}"
+	device_disconnect.sh "${3}"
 	;;
 "WPS-PBC-ACTIVE")
 	# WPS Push Button enabled...
@@ -21,7 +21,7 @@ case "${2}" in
 	;;
 "WPS-REG-SUCCESS")
 	echo "Registration was successful"
-	device_enable "${@}"
+	device_enable.sh "${@}"
 	;;
 *)
 	;;
