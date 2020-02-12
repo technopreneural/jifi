@@ -15,22 +15,11 @@ curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 
 #sudo apt-key fingerprint 0EBFCD88
 
-ARCH="`uname -m`"
+echo 'deb https://download.docker.com/linux/debian buster stable' |
+sudo tee /etc/apt/sources.list.d/docker.list
 
-case "${ARCH}" in
-"armv7l")
-ARCH="[arch=armhf]";;
-*)
-unset ARCH;;
-esac
+sudo apt-get update
 
-sudo add-apt-repository \
-   'deb "${ARCH}" https://download.docker.com/linux/debian \
-   $(lsb_release -cs) \
-   stable'
+sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io
 
-#sudo apt-get update
-
-#sudo apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io
-
-#sudo usermod -aG docker pi
+sudo usermod -aG docker pi
