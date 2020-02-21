@@ -3,3 +3,5 @@ hostapd/data/*
 *.acl
 *.wps_pin
 *.tar
+*.img
+mnt
