@@ -11,10 +11,12 @@ fi
 
 # Cleanup before closing
 function cleanup() {
-sudo umount /tmp/mnt/boot
-check_error $? "Cannot unmount loopback device."
-sudo rm -rf /tmp/mnt
-check_error $? "Cannot remove temporary folders."
+for i in /tmp/mnt/*/; do
+	sudo umount $i
+	check_error $? "Cannot unmount $i."
+	sudo rm -rf $i
+	check_error $? "Cannot remove temporary mount folder $i"
+done
 sudo losetup -d "${DEV_TARGET}"
 check_error $? "Cannot unregister ${DEV_TARGET} loopback device."
 sudo losetup -d "${DEV_SOURCE}"
@@ -22,7 +24,26 @@ check_error $? "Cannot unregister ${DEV_SORUCE} loopback device."
 }
 
 function fix_fstab() {
-echo "Fixing fstab is not yet complete..."
+sudo mkdir -p /tmp/mnt/reco
+check_error $? "Cannot create temporary folder /tmp/mnt/reco."
+sudo mount "${DEV_TARGET}p2" /tmp/mnt/reco
+check_error $? "Cannot mount ${DEV_TARGET}p1 to /tmp/mnt/reco."
+sudo sh -c 'cat > /tmp/mnt/reco/etc/fstab << EOF
+proc /proc proc defaults 0 0
+UUID="${UUID_BOOT}" /boot vfat defaults 0 2
+UUID="${UUID_RECO}" / ext4 defaults,noatime 0 1
+EOF'
+check_error $? "Cannot modify /tmp/mnt/reco/etc/fstab"
+sudo mkdir -p /tmp/mnt/root
+check_error $? "Cannot create temporary folder /tmp/mnt/root."
+sudo mount "${DEV_TARGET}p2" /tmp/mnt/root
+check_error $? "Cannot mount ${DEV_TARGET}p1 to /tmp/mnt/root."
+sudo sh -c 'cat > /tmp/mnt/root/etc/fstab << EOF
+proc /proc proc defaults 0 0
+UUID="${UUID_BOOT}" /boot vfat defaults 0 2
+UUID="${UUID_ROOT}" / ext4 defaults,noatime 0 1
+EOF'
+check_error $? "Cannot modify /tmp/mnt/root/etc/fstab"
 }
 
 # Set target image to boot from root partition by default
@@ -139,6 +160,7 @@ create_loopback_devices
 copy_partitions
 set_partition_uuids
 set_boot_to_root
+fix_fstab
 cleanup
 }
 
