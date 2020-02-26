@@ -52,8 +52,10 @@ sudo mkdir -p /tmp/mnt/boot
 check_error $? "Cannot create temporary folder /tmp/mnt/boot."
 sudo mount "${DEV_TARGET}p1" /tmp/mnt/boot
 check_error $? "Cannot mount ${DEV_TARGET}p1 to /tmp/mnt/boot."
-sudo sed -i "/root=/ s/PARTUUID=[0-9a-f]\{8\}-02/PARTUUID=${UUID_DISK}-03/" /tmp/mnt/boot/cmdline.txt
+sudo sed -i "/root=/ s/PARTUUID=[0-9A-F]\{8\}-[0-9]\{2\}/PARTUUID=${UUID_DISK}-03/" /tmp/mnt/boot/cmdline.txt
 check_error $? "Cannot modify kernel boot parameters on target image boot partition."
+sudo cat /tmp/mnt/boot/cmdline.txt | grep -q "root=PARTUUID=${UUID_DISK}-03"
+check_error $? "PARTUUID does not match."
 }
 
 # Set new partition UUIDs for device identification
@@ -79,14 +81,13 @@ check_error $? "Cannot copy root partition."
 function partition_blank_image() {
 sudo sfdisk "${IMG_TARGET}" <<EOL
 label: dos
-label-id: "0x${UUID_DISK}"
+label-id: 0x${UUID_DISK}
 
 name=boot, start="${BOOT_START}", size="${BOOT_SIZE}", type=c
 name=reco, start="${ROOT_START}", size="${ROOT_SIZE}", type=83
 name=root, start="$(( ${ROOT_START} + ${ROOT_SIZE} ))", size="${ROOT_SIZE}", type=83
 EOL
 check_error $? "Cannot create partitions."
-sudo fdisk -lu "${IMG_TARGET}"
 }
 
 # Register source and target image as loopback devices
@@ -95,7 +96,6 @@ DEV_SOURCE=$(sudo losetup -v -f "${IMG_SOURCE}" -P --show)
 check_error $? "Cannot register ${IMG_SOURCE} as ${DEV_SOURCE}."
 DEV_TARGET=$(sudo losetup -v -f "${IMG_TARGET}" -P --show)
 check_error $? "Cannot register ${IMG_TARGET} as ${DEV_TARGET}."
-sudo lsblk "${DEV_SOURCE}" "${DEV_TARGET}"
 }
 
 # Create blank disk image of sufficient size
@@ -103,7 +103,6 @@ function create_blank_image() {
 BLCK_COUNT=$(( $DISK_SIZE * 512 / 4096 / 1024 ))
 sudo dd bs=4M conv=sparse,fsync count="${BLCK_COUNT}" if=/dev/zero of="${IMG_TARGET}" status=progress
 check_error $? "Cannot create blank image."
-sudo fdisk -lu "${IMG_TARGET}"
 }
 
 # Calculate size of root, recovery, and boot partitions as well as total disk size
@@ -113,12 +112,11 @@ BOOT_SIZE=$(sudo fdisk -lu "${IMG_SOURCE}" | sed -n "/W95 FAT32 (LBA)/p" | sed '
 ROOT_START=$(sudo fdisk -lu "${IMG_SOURCE}" | sed -n "/Linux/p" | sed 's/[ ]\+/\t/g' | cut -f2)
 ROOT_SIZE=$(sudo fdisk -lu "${IMG_SOURCE}" | sed -n "/Linux/p" | sed 's/[ ]\+/\t/g' | cut -f4)
 DISK_SIZE=$(( ${ROOT_START} + 2 * ${ROOT_SIZE} ))
-sudo fdisk -lu "${IMG_SOURCE}"
 }
 
 # Generate unique disk and partition identifiers
 function generate_uuids() {
-UUID_DISK=$(tr -dc '0-7' < /dev/urandom | head -c1)$(tr -dc 'A-F0-9' < /dev/urandom | head -c7) &&
+UUID_DISK=$(tr -dc '0-7' < /dev/urandom | head -c1)$(tr -dc '0-9A-F' < /dev/urandom | head -c7) &&
 UUID_BOOT=$(uuidgen) &&
 UUID_RECO=$(uuidgen) &&
 UUID_ROOT=$(uuidgen)
