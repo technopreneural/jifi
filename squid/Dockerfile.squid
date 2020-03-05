@@ -1,0 +1,26 @@
+#-----------------------------------
+# Stage 1: Generic configuration
+#-----------------------------------
+FROM		ubuntu AS builder
+MAINTAINER	technopreneural@yahoo.com
+
+ARG		DEBIAN_FRONTEND=noninteractive
+RUN		apt-get update && apt-get upgrade -y
+
+#-----------------------------------
+# Stage 2 App specific configuration
+#-----------------------------------
+FROM		builder AS hostapd
+MAINTAINER	technopreneural@yahoo.com
+
+ARG		DEBIAN_FRONTEND=noninteractive
+RUN		apt-get update && apt-get install --no-install-recommends -y squid
+
+EXPOSE		3128/tcp
+
+RUN		sed -i '/http_access deny all/ s/deny/allow/' /etc/squid/squid.conf
+
+WORKDIR		/home/app
+ADD		hostapd.tar .
+
+ENTRYPOINT	/home/app/script/entrypoint.sh

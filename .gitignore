@@ -1,8 +1,9 @@
-hostapd/data/*
 *.wpa_psk
 *.acl
 *.wps_pin
 *.tar
 *.img
-mnt
 *.gz
+hostapd/data/*
+pihole/data/*
+mnt
